@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shaker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#faf7f2;--surface:#fff;--surface2:#f5f0e8;--border:rgba(0,0,0,0.08);
+  --text:#1a1208;--muted:#7a6f5e;--faint:#c4b89e;
+  --amber:#c8820a;--amber-light:#fff3dc;--amber-mid:rgba(200,130,10,0.1);
+  --red:#b33a1e;--red-light:#fdf0ed;
+  --green:#2d6a4f;--green-light:#edf7f2;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;padding-bottom:80px;}
+
+header{background:var(--text);color:var(--bg);padding:22px 20px 0;}
+header h1{font-family:'Playfair Display',serif;font-size:clamp(30px,7vw,46px);font-weight:400;letter-spacing:-1px;}
+header h1 em{font-style:italic;color:#d4a844;}
+.hdr-sub{font-size:11px;color:rgba(250,247,242,.45);letter-spacing:.12em;text-transform:uppercase;margin-top:2px;padding-bottom:18px;}
+
+.tabs{background:var(--text);display:flex;border-top:1px solid rgba(255,255,255,0.07);}
+.tab{flex:1;padding:13px 8px;text-align:center;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;color:rgba(250,247,242,.4);border-bottom:2px solid transparent;transition:all .2s;}
+.tab.active{color:#d4a844;border-bottom-color:#d4a844;}
+
+.pane{display:none;max-width:520px;margin:0 auto;padding:18px 14px 0;}
+.pane.active{display:block;}
+
+/* SEARCH */
+.swrap{position:relative;margin-bottom:14px;}
+.swrap input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;font-family:'Outfit',sans-serif;font-size:15px;padding:13px 16px 13px 44px;color:var(--text);outline:none;transition:border-color .2s;}
+.swrap input::placeholder{color:var(--faint);}
+.swrap input:focus{border-color:var(--amber);}
+.si{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--faint);font-size:18px;pointer-events:none;}
+
+.label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:500;margin-bottom:8px;}
+
+/* INSPIRE CHIPS */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;}
+.chip{background:var(--surface);border:1.5px solid var(--border);border-radius:100px;padding:6px 13px;font-size:13px;color:var(--text);cursor:pointer;transition:all .15s;user-select:none;white-space:nowrap;}
+.chip:hover{border-color:var(--amber);color:var(--amber);}
+.chip.on{background:var(--amber);border-color:var(--amber);color:white;font-weight:500;}
+
+/* BUTTONS */
+.big-btn{width:100%;border:none;border-radius:12px;padding:14px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:opacity .2s,transform .1s;margin-bottom:10px;}
+.big-btn:hover{opacity:.88;}
+.big-btn:active{transform:scale(.99);}
+.btn-dark{background:var(--text);color:var(--bg);}
+.btn-green{background:var(--green);color:white;}
+.btn-outline{width:100%;background:none;border:1.5px solid var(--border);color:var(--muted);font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer;padding:10px;border-radius:100px;transition:all .15s;margin-bottom:20px;}
+.btn-outline:hover{border-color:var(--amber);color:var(--amber);}
+
+/* STATS */
+.stats-bar{display:grid;grid-template-columns:repeat(3,1fr);background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:16px;}
+.stat{padding:12px;text-align:center;}
+.stat+.stat{border-left:1px solid var(--border);}
+.stat-num{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--text);}
+.stat-lbl{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:1px;}
+
+/* CABINET */
+.cab-search-wrap{position:relative;margin-bottom:12px;}
+.cab-search-wrap input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;font-family:'Outfit',sans-serif;font-size:14px;padding:10px 14px 10px 38px;color:var(--text);outline:none;transition:border-color .2s;}
+.cab-search-wrap input:focus{border-color:var(--amber);}
+.cab-search-wrap input::placeholder{color:var(--faint);}
+.csrch-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--faint);font-size:15px;pointer-events:none;}
+
+.cab-section{margin-bottom:20px;}
+.cab-section-hdr{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border);}
+.cab-chips{display:flex;flex-wrap:wrap;gap:5px;}
+.cab-chip{background:var(--surface);border:1.5px solid var(--border);border-radius:100px;padding:5px 12px;font-size:12px;color:var(--text);cursor:pointer;transition:all .15s;user-select:none;white-space:nowrap;}
+.cab-chip:hover{border-color:var(--green);color:var(--green);}
+.cab-chip.on{background:var(--green);border-color:var(--green);color:white;}
+
+.assumed-note{font-size:11px;color:var(--muted);background:var(--surface2);border-radius:8px;padding:8px 12px;margin-bottom:14px;line-height:1.5;}
+.loading-msg{color:var(--muted);font-size:13px;padding:20px 0;text-align:center;}
+
+/* STATUS */
+.status{text-align:center;color:var(--muted);font-size:14px;padding:14px 0;}
+.err-box{background:var(--red-light);color:var(--red);border-radius:10px;padding:11px 14px;font-size:13px;margin-bottom:12px;}
+.rlabel{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+
+/* CARDS */
+.rgrid{display:flex;flex-direction:column;gap:10px;}
+.ccard{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:transform .15s,box-shadow .15s;}
+.ccard:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.07);}
+.ccard-inner{display:flex;}
+.ccard-img{width:96px;height:96px;object-fit:cover;flex-shrink:0;background:var(--surface2);}
+.ccard-body{padding:11px 14px;flex:1;display:flex;flex-direction:column;justify-content:center;}
+.ccard-name{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;margin-bottom:2px;line-height:1.3;}
+.ccard-cat{font-size:10px;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px;}
+.ccard-tags{display:flex;gap:4px;flex-wrap:wrap;}
+.tag{font-size:11px;padding:2px 8px;border-radius:4px;}
+.tag-glass{background:var(--amber-light);color:var(--amber);}
+.tag-alc{background:var(--red-light);color:var(--red);}
+.tag-can{background:var(--green-light);color:var(--green);font-weight:600;}
+.tag-miss{background:var(--red-light);color:var(--red);}
+
+.ccard.near{border-color:rgba(200,130,10,.3);}
+.miss-row{padding:8px 14px 10px;border-top:1px solid rgba(200,130,10,.15);background:var(--amber-mid);}
+.miss-lbl{font-size:11px;color:var(--amber);font-weight:500;margin-bottom:5px;}
+.miss-chips{display:flex;flex-wrap:wrap;gap:4px;}
+.miss-chip{font-size:11px;padding:3px 10px;border-radius:100px;background:white;border:1px solid rgba(200,130,10,.3);color:var(--amber);cursor:pointer;transition:all .15s;}
+.miss-chip:hover{background:var(--amber);color:white;border-color:var(--amber);}
+
+.sdiv{display:flex;align-items:center;justify-content:space-between;margin:20px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.sdiv-label{font-size:12px;font-weight:500;}
+.sdiv-count{font-size:11px;color:var(--faint);}
+
+/* MODAL */
+.moverlay{display:none;position:fixed;inset:0;background:rgba(26,18,8,.75);z-index:100;padding:16px;overflow-y:auto;align-items:flex-start;justify-content:center;}
+.moverlay.open{display:flex;}
+.modal{background:var(--surface);border-radius:20px;width:100%;max-width:480px;overflow:hidden;margin:auto;position:relative;}
+.modal-img{width:100%;height:220px;object-fit:cover;display:block;background:var(--surface2);}
+.modal-x{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.5);color:white;border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.modal-body{padding:18px 20px 28px;}
+.modal-name{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;margin-bottom:3px;}
+.modal-meta{font-size:12px;color:var(--muted);margin-bottom:16px;}
+.msec{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:500;margin-bottom:9px;}
+.ing-list{list-style:none;margin-bottom:18px;}
+.ing-list li{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:14px;}
+.ing-list li:last-child{border-bottom:none;}
+.ing-list li.have{color:var(--green);}
+.ing-list li.missing{color:var(--red);}
+.ing-measure{font-size:12px;color:var(--muted);}
+.instructions{font-size:14px;line-height:1.7;color:var(--muted);background:var(--surface2);padding:14px;border-radius:10px;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Sha<em>ker</em></h1>
+  <div class="hdr-sub">Cocktail builder</div>
+</header>
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('cabinet')">My Cabinet</div>
+  <div class="tab" onclick="switchTab('inspire')">Inspirations</div>
+</div>
+
+<!-- MY CABINET -->
+<div class="pane active" id="pane-cabinet">
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-num" id="sCabCount">—</div><div class="stat-lbl">In cabinet</div></div>
+    <div class="stat"><div class="stat-num" id="sCan">—</div><div class="stat-lbl">Can make</div></div>
+    <div class="stat"><div class="stat-num" id="sClose">—</div><div class="stat-lbl">1 away</div></div>
+  </div>
+  <div class="assumed-note">Assumed you have: <strong>ice, water, salt, sugar, black pepper</strong>. Everything else needs to be added.</div>
+  <button class="big-btn btn-green" onclick="findFromCabinet()">🍸 What can I make?</button>
+  <div id="cErr" class="err-box" style="display:none"></div>
+  <div id="cStatus" class="status" style="display:none"></div>
+  <div id="cResults"></div>
+  <div style="margin-top:24px;">
+    <div class="label">Your cabinet — tap to toggle</div>
+    <div class="cab-search-wrap">
+      <span class="csrch-icon">⌕</span>
+      <input type="text" id="cabSearch" placeholder="Filter ingredients..." oninput="filterCab()">
+    </div>
+    <div id="cabLoading" class="loading-msg">Loading ingredients...</div>
+    <div id="cabCategories"></div>
+  </div>
+</div>
+
+<!-- INSPIRATIONS -->
+<div class="pane" id="pane-inspire">
+  <div class="swrap">
+    <span class="si">⌕</span>
+    <input type="text" id="iSearch" placeholder="Search by cocktail name...">
+  </div>
+  <div class="label">Filter by spirit</div>
+  <div class="chips" id="iChips"></div>
+  <button class="big-btn btn-dark" onclick="findInspiration()">Find cocktails</button>
+  <button class="btn-outline" onclick="getRandom()">Surprise me — random cocktail</button>
+  <div id="iErr" class="err-box" style="display:none"></div>
+  <div id="iStatus" class="status" style="display:none"></div>
+  <div class="rlabel" id="iLabel"></div>
+  <div class="rgrid" id="iResults"></div>
+</div>
+
+<!-- MODAL -->
+<div class="moverlay" id="moverlay" onclick="maybeClose(event)">
+  <div class="modal" id="modalBox">
+    <img id="mImg" class="modal-img" src="" alt="">
+    <button class="modal-x" onclick="closeModal()">✕</button>
+    <div class="modal-body">
+      <div class="modal-name" id="mName"></div>
+      <div class="modal-meta" id="mMeta"></div>
+      <div class="msec">Ingredients</div>
+      <ul class="ing-list" id="mIngs"></ul>
+      <div class="msec">Instructions</div>
+      <div class="instructions" id="mInstr"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const BASE = 'https://www.thecocktaildb.com/api/json/v1/1';
+
+// Items we always assume the user has — never show in cabinet
+const ASSUMED = new Set(['ice','water','salt','sugar','black pepper','powdered sugar']);
+
+// ── SPIRIT GROUPING ───────────────────────────────────────────────────────────
+// ONLY spirits get grouped. Everything else shows exactly as returned by the API.
+// A spirit ingredient belongs to a group if its name ENDS WITH the group name
+// (e.g. "Absolut Vodka" ends with "Vodka", "Dark Rum" ends with "Rum")
+// OR exactly equals the group name.
+const SPIRIT_GROUPS = [
+  'Vodka','Gin','Rum','Tequila','Mezcal','Whiskey','Whisky','Bourbon','Scotch',
+  'Brandy','Cognac','Absinthe','Sambuca','Champagne','Prosecco','Sake','Mead',
+  'Port','Sherry','Vermouth','Campari','Aperol','Amaretto','Kahlua','Baileys',
+  'Schnapps','Triple Sec','Curacao','Cointreau','Midori','Frangelico','Drambuie',
+  'Chambord','Galliano','Chartreuse','Benedictine','Pimm\'s',
+];
+
+// Returns which group an ingredient belongs to, or null
+function getSpiritGroup(name){
+  const nl = name.toLowerCase().trim();
+  for(const g of SPIRIT_GROUPS){
+    const gl = g.toLowerCase();
+    if(nl === gl) return g;           // exact match: "Vodka"
+    if(nl.endsWith(' ' + gl)) return g; // suffix match: "Absolut Vodka", "Dark Rum"
+  }
+  return null;
+}
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let cabinet = new Set(JSON.parse(localStorage.getItem('shaker_cab') || '[]'));
+// spiritGroups: Map<groupName, string[]> of variants from API
+let spiritGroups = new Map();
+// rawNonSpirits: string[] — everything that isn't a spirit, exactly as API returned
+let rawNonSpirits = [];
+// iSelected for inspirations tab
+let iSelected = new Set();
+
+function saveCab(){ localStorage.setItem('shaker_cab', JSON.stringify([...cabinet])); }
+function updateCount(){ document.getElementById('sCabCount').textContent = cabinet.size; }
+
+// ── LOAD INGREDIENTS ─────────────────────────────────────────────────────────
+// BUNDLED_INGREDIENTS is always used for the cabinet UI so it works offline/locally.
+// The API fetch only runs when actually searching for cocktails.
+async function loadIngredients(){
+  let names = BUNDLED_INGREDIENTS; // always start with bundled list
+  try {
+    // Try to enhance with the live API list (has more obscure items)
+    const r = await fetch(`${BASE}/list.php?i=list`);
+    if(!r.ok) throw new Error();
+    const d = await r.json();
+    const apiNames = (d.drinks||[]).map(x=>x.strIngredient1).filter(Boolean);
+    if(apiNames.length > 100) {
+      // Merge: start with API list, add any bundled items not in API
+      const apiSet = new Set(apiNames.map(n=>n.toLowerCase()));
+      const extras = BUNDLED_INGREDIENTS.filter(n=>!apiSet.has(n.toLowerCase()));
+      names = [...apiNames, ...extras];
+    }
+  } catch(e) {
+    // file:// or network error — bundled list already set, just continue
+  }
+
+  // Separate into spirit groups vs everything else
+  spiritGroups = new Map(SPIRIT_GROUPS.map(g=>[g,[]]));
+  rawNonSpirits = [];
+
+  names.forEach(name => {
+    if(ASSUMED.has(name.toLowerCase())) return;
+    const grp = getSpiritGroup(name);
+    if(grp){
+      if(name.toLowerCase() !== grp.toLowerCase()){
+        spiritGroups.get(grp).push(name);
+      }
+    } else {
+      rawNonSpirits.push(name);
+    }
+  });
+
+  buildCabinetUI();
+}
+
+// ── CABINET UI ───────────────────────────────────────────────────────────────
+function buildCabinetUI(filter=''){
+  document.getElementById('cabLoading').style.display = 'none';
+  const container = document.getElementById('cabCategories');
+  container.innerHTML = '';
+  const fl = filter.toLowerCase().trim();
+
+  // 1. SPIRITS SECTION — one chip per group
+  const spiritChips = document.createElement('div');
+  spiritChips.className = 'cab-chips';
+  let anySpirit = false;
+  SPIRIT_GROUPS.forEach(grp => {
+    if(fl && !grp.toLowerCase().includes(fl)) return;
+    anySpirit = true;
+    spiritChips.appendChild(makeSpiritChip(grp));
+  });
+  if(anySpirit){
+    const sec = document.createElement('div');
+    sec.className = 'cab-section';
+    sec.innerHTML = '<div class="cab-section-hdr">Spirits & Liqueurs</div>';
+    sec.appendChild(spiritChips);
+    container.appendChild(sec);
+  }
+
+  // 2. NON-SPIRIT SECTIONS — each ingredient keeps its exact name, just sorted into sections
+  // Sections defined by keyword presence in the ingredient name. Order matters — juice before garnish.
+  const NON_SPIRIT_SECTIONS = [
+    { label: 'Juices & Ciders',      test: n => /juice|cider/i.test(n) },
+    { label: 'Mixers & Sodas',       test: n => /soda|tonic|ginger beer|ginger ale|cola|lemonade|sparkling water|club soda|bitter lemon|coconut water/i.test(n) },
+    { label: 'Dairy & Cream',        test: n => /\bcream\b|milk|half and half|buttermilk|yogurt/i.test(n) },
+    { label: 'Coffee & Tea',         test: n => /coffee|espresso|tea|hot chocolate/i.test(n) },
+    { label: 'Syrups & Sweeteners',  test: n => /syrup|grenadine|orgeat|falernum|honey|agave|molasses|cordial/i.test(n) },
+    { label: 'Bitters',              test: n => /bitters/i.test(n) },
+    { label: 'Eggs',                 test: n => /\begg\b/i.test(n) },
+    { label: 'Fruits & Garnishes',   test: n => /lime|lemon|orange|grapefruit|pineapple|mango|passion|peach|apple|cherry|berry|banana|melon|coconut|watermelon|cucumber|mint|celery|olive|ginger|basil/i.test(n) },
+    { label: 'Condiments & Spices',  test: n => /tabasco|worcestershire|horseradish|pepper|chilli|chile|jalapeno|nutmeg|cinnamon|salt|sauce|mustard/i.test(n) },
+    { label: 'Other',                test: () => true },
+  ];
+
+  const buckets = new Map(NON_SPIRIT_SECTIONS.map(s => [s.label, []]));
+  rawNonSpirits
+    .filter(n => !fl || n.toLowerCase().includes(fl))
+    .sort((a,b) => a.localeCompare(b))
+    .forEach(name => {
+      const sec = NON_SPIRIT_SECTIONS.find(s => s.test(name));
+      buckets.get(sec.label).push(name);
+    });
+
+  NON_SPIRIT_SECTIONS.forEach(({ label }) => {
+    const items = buckets.get(label);
+    if(!items.length) return;
+    const sec = document.createElement('div');
+    sec.className = 'cab-section';
+    sec.innerHTML = `<div class="cab-section-hdr">${label}</div>`;
+    const chips = document.createElement('div');
+    chips.className = 'cab-chips';
+    items.forEach(name => chips.appendChild(makeCabChip(name)));
+    sec.appendChild(chips);
+    container.appendChild(sec);
+  });
+
+  updateCount();
+}
+
+function makeSpiritChip(grp){
+  const c = document.createElement('div');
+  c.className = 'cab-chip' + (cabinet.has(grp) ? ' on' : '');
+  c.textContent = grp;
+  c.onclick = () => {
+    cabinet.has(grp) ? cabinet.delete(grp) : cabinet.add(grp);
+    c.classList.toggle('on', cabinet.has(grp));
+    saveCab(); updateCount();
+  };
+  return c;
+}
+
+function makeCabChip(name){
+  const c = document.createElement('div');
+  c.className = 'cab-chip' + (cabinet.has(name) ? ' on' : '');
+  c.textContent = name;
+  c.dataset.name = name;
+  c.onclick = () => {
+    cabinet.has(name) ? cabinet.delete(name) : cabinet.add(name);
+    c.classList.toggle('on', cabinet.has(name));
+    saveCab(); updateCount();
+  };
+  return c;
+}
+
+function filterCab(){ buildCabinetUI(document.getElementById('cabSearch').value); }
+
+// ── MATCHING ──────────────────────────────────────────────────────────────────
+// Has: true if user's cabinet covers this ingredient
+// Spirits: having "Vodka" covers "Absolut Vodka", "Cranberry Vodka", etc.
+// Everything else: exact match or whole-string containment
+
+const ALIASES = {
+  'juice of a lime':'lime juice','juice of half a lime':'lime juice',
+  'juice of a lemon':'lemon juice','juice of half a lemon':'lemon juice',
+  'juice of an orange':'orange juice',
+  'fresh lime juice':'lime juice','fresh lemon juice':'lemon juice',
+  'lime wedge':'lime juice','lemon wedge':'lemon juice',
+  'lime twist':'lime juice','lemon twist':'lemon juice',
+  'orange slice':'orange juice','orange wedge':'orange juice','orange twist':'orange juice',
+  'lime peel':'lime juice','lemon peel':'lemon juice','orange peel':'orange juice',
+  'egg white':'egg','egg yolk':'egg',
+  'heavy cream':'cream','whipping cream':'cream','double cream':'cream',
+  'club soda':'soda water','sparkling water':'soda water',
+  'simple syrup':'sugar syrup','gomme syrup':'sugar syrup',
+  'half and half':'cream',
+};
+
+function cabinetHas(ingName){
+  if(!ingName) return false;
+  const n = ingName.toLowerCase().trim();
+  if(ASSUMED.has(n)) return true;
+
+  // Spirit group check: having "Vodka" covers "Absolut Vodka", "Cranberry Vodka"
+  const grp = getSpiritGroup(ingName);
+  if(grp && cabinet.has(grp)) return true;
+
+  // Alias check — no recursion, just one level
+  const canonical = ALIASES[n];
+  const check = canonical || n;
+
+  // Direct match
+  if(cabinet.has(ingName)) return true;
+
+  // Case-insensitive match against cabinet
+  for(const item of cabinet){
+    const i = item.toLowerCase();
+    if(i === check) return true;
+    if(i === n) return true;
+    // Cabinet item is contained in ingredient name as a whole word
+    // e.g. cabinet has "Lime Juice", drink asks for "Lime Juice (fresh)"
+    if(check.startsWith(i) || n.startsWith(i)) return true;
+  }
+  return false;
+}
+
+function getDrinkIngs(d){
+  const out = [];
+  for(let i=1;i<=15;i++){
+    const name = d[`strIngredient${i}`];
+    if(!name || !name.trim()) break;
+    out.push({name: name.trim(), measure: (d[`strMeasure${i}`]||'').trim()});
+  }
+  return out;
+}
+
+// ── CABINET SEARCH ────────────────────────────────────────────────────────────
+async function findFromCabinet(){
+  clearCErr(); showCStatus('Scanning your cabinet...');
+  document.getElementById('cResults').innerHTML = '';
+
+  if(!cabinet.size){ hideCStatus(); showCErr('Add some items to your cabinet first.'); return; }
+
+  // Search terms: spirit group names in cabinet + any non-spirit items
+  const spiritTerms = SPIRIT_GROUPS.filter(g => cabinet.has(g));
+  const otherTerms = [...cabinet].filter(item => !SPIRIT_GROUPS.includes(item)).slice(0, 5);
+  const searchTerms = [...spiritTerms, ...otherTerms].slice(0, 15);
+
+  if(!searchTerms.length){ hideCStatus(); showCErr('Add some spirits to find cocktails.'); return; }
+
+  try{
+    const idSets = await Promise.all(searchTerms.map(async term => {
+      try{
+        const d = await apiFetch(`${BASE}/filter.php?i=${encodeURIComponent(term)}`);
+        return new Set((d.drinks||[]).map(x=>x.idDrink));
+      } catch { return new Set(); }
+    }));
+    const union = new Set();
+    idSets.forEach(s=>s.forEach(id=>union.add(id)));
+
+    if(!union.size){ hideCStatus(); showCErr('No cocktails found. Try adding more items.'); return; }
+
+    const drinks = (await Promise.all(
+      [...union].map(id => apiFetch(`${BASE}/lookup.php?i=${id}`).then(d=>d.drinks?.[0]).catch(()=>null))
+    )).filter(Boolean);
+
+    const scored = drinks.map(drink => {
+      const ings = getDrinkIngs(drink);
+      const missing = ings.filter(i => !cabinetHas(i.name));
+      return { drink, ings, missing, canMake: missing.length === 0 };
+    }).sort((a,b) => a.missing.length - b.missing.length);
+
+    const canMake = scored.filter(s => s.canMake);
+    const oneAway = scored.filter(s => s.missing.length === 1);
+    const twoAway = scored.filter(s => s.missing.length === 2);
+
+    document.getElementById('sCan').textContent = canMake.length;
+    document.getElementById('sClose').textContent = oneAway.length;
+    hideCStatus();
+
+    const wrap = document.getElementById('cResults');
+    wrap.innerHTML = '';
+
+    if(!canMake.length && !oneAway.length && !twoAway.length){
+      wrap.innerHTML = '<div style="text-align:center;padding:32px;color:var(--muted);font-size:14px;">No matches yet. Try adding more spirits and mixers.</div>';
+      return;
+    }
+    if(canMake.length){ wrap.appendChild(sdiv('You can make right now', canMake.length)); const g=rGrid(); canMake.forEach(s=>g.appendChild(makeFullCard(s.drink,s.ings))); wrap.appendChild(g); }
+    if(oneAway.length){ wrap.appendChild(sdiv('Missing just 1 ingredient', oneAway.length)); const g=rGrid(); oneAway.forEach(s=>g.appendChild(makeNearCard(s.drink,s.ings,s.missing))); wrap.appendChild(g); }
+    if(twoAway.length){ wrap.appendChild(sdiv('Missing 2 ingredients', twoAway.length)); const g=rGrid(); twoAway.forEach(s=>g.appendChild(makeNearCard(s.drink,s.ings,s.missing))); wrap.appendChild(g); }
+
+  } catch(e){ hideCStatus(); showCErr(`Error: ${e.message}`); }
+}
+
+function sdiv(label, count){ const d=document.createElement('div'); d.className='sdiv'; d.innerHTML=`<span class="sdiv-label">${label}</span><span class="sdiv-count">${count}</span>`; return d; }
+function rGrid(){ const g=document.createElement('div'); g.className='rgrid'; return g; }
+
+function makeFullCard(d, ings){
+  const card = ccard(d);
+  card.querySelector('.ccard-tags').innerHTML += `<span class="tag tag-can">✓ All ingredients</span>`;
+  card.onclick = () => openModal(d, ings);
+  return card;
+}
+
+function makeNearCard(d, ings, missing){
+  const card = ccard(d);
+  card.classList.add('near');
+  missing.forEach(m => {
+    const t = document.createElement('span'); t.className='tag tag-miss'; t.textContent=`need: ${m.name}`;
+    card.querySelector('.ccard-tags').appendChild(t);
+  });
+  const row = document.createElement('div'); row.className='miss-row';
+  row.innerHTML = `<div class="miss-lbl">Tap to add to your cabinet:</div><div class="miss-chips">${missing.map(m=>`<span class="miss-chip" data-name="${m.name.replace(/"/g,'&quot;')}">${m.name}</span>`).join('')}</div>`;
+  row.querySelectorAll('.miss-chip').forEach(chip => {
+    chip.onclick = e => {
+      e.stopPropagation();
+      const name = chip.dataset.name;
+      cabinet.add(name); saveCab();
+      chip.style.cssText = 'background:var(--green);color:white;border-color:var(--green);';
+      chip.textContent = '✓ ' + name; chip.onclick = null;
+      updateCount();
+      document.querySelectorAll('.cab-chip').forEach(c => { if(c.dataset.name===name) c.classList.add('on'); });
+    };
+  });
+  card.appendChild(row);
+  card.onclick = () => openModal(d, ings);
+  return card;
+}
+
+function ccard(d){
+  const card = document.createElement('div'); card.className='ccard';
+  card.innerHTML = `<div class="ccard-inner"><img class="ccard-img" src="${d.strDrinkThumb}/preview" alt="${d.strDrink}" loading="lazy" onerror="this.style.background='#f5f0e8'"><div class="ccard-body"><div class="ccard-name">${d.strDrink}</div><div class="ccard-cat">${d.strCategory||''}</div><div class="ccard-tags"><span class="tag tag-glass">${d.strGlass||''}</span><span class="tag tag-alc">${d.strAlcoholic||''}</span></div></div></div>`;
+  return card;
+}
+
+// ── INSPIRATIONS ──────────────────────────────────────────────────────────────
+const INSPIRE_SPIRITS = ['Vodka','Gin','Rum','Tequila','Whiskey','Bourbon','Scotch',
+  'Triple Sec','Amaretto','Kahlua','Brandy','Champagne','Aperol','Campari','Mezcal','Absinthe','Vermouth','Prosecco'];
+
+function buildInspireChips(){
+  const g = document.getElementById('iChips');
+  INSPIRE_SPIRITS.forEach(s => {
+    const c = document.createElement('div'); c.className='chip'; c.textContent=s;
+    c.onclick = () => { iSelected.has(s)?iSelected.delete(s):iSelected.add(s); c.classList.toggle('on',iSelected.has(s)); };
+    g.appendChild(c);
+  });
+}
+
+async function findInspiration(){
+  if(!iSelected.size){ showIErr('Select at least one spirit above.'); return; }
+  clearIErr(); showIStatus('Searching...');
+  document.getElementById('iResults').innerHTML=''; document.getElementById('iLabel').textContent='';
+  try{
+    const sets = await Promise.all([...iSelected].map(async s => {
+      try{ const d=await apiFetch(`${BASE}/filter.php?i=${encodeURIComponent(s)}`); return new Set((d.drinks||[]).map(x=>x.idDrink)); }
+      catch{ return new Set(); }
+    }));
+    const union = new Set(); sets.forEach(s=>s.forEach(id=>union.add(id)));
+    if(!union.size){ showIStatus('No cocktails found. Try again in a moment.'); return; }
+    const drinks = (await Promise.all([...union].slice(0,20).map(id=>apiFetch(`${BASE}/lookup.php?i=${id}`).then(d=>d.drinks?.[0]).catch(()=>null)))).filter(Boolean);
+    hideIStatus();
+    renderInspirations(drinks);
+  } catch(e){ showIErr(`Error: ${e.message}`); hideIStatus(); }
+}
+
+async function getRandom(){
+  clearIErr(); showIStatus('Shaking...');
+  document.getElementById('iResults').innerHTML=''; document.getElementById('iLabel').textContent='';
+  try{
+    const d = await apiFetch(`${BASE}/random.php`);
+    hideIStatus();
+    if(d.drinks) openModal(d.drinks[0], getDrinkIngs(d.drinks[0]));
+  } catch(e){ showIErr(`Failed: ${e.message}`); hideIStatus(); }
+}
+
+let iTimer;
+document.getElementById('iSearch').addEventListener('input', e => {
+  clearTimeout(iTimer); const q=e.target.value.trim();
+  if(!q){ document.getElementById('iResults').innerHTML=''; document.getElementById('iLabel').textContent=''; return; }
+  iTimer = setTimeout(async()=>{
+    clearIErr(); showIStatus('Searching...'); document.getElementById('iResults').innerHTML='';
+    try{
+      const d = await apiFetch(`${BASE}/search.php?s=${encodeURIComponent(q)}`);
+      hideIStatus();
+      if(d.drinks) renderInspirations(d.drinks.slice(0,20)); else showIStatus('No results.');
+    } catch(e){ showIErr(`Error: ${e.message}`); hideIStatus(); }
+  }, 400);
+});
+
+function renderInspirations(drinks){
+  document.getElementById('iLabel').textContent = `${drinks.length} cocktail${drinks.length!==1?'s':''} found`;
+  const c = document.getElementById('iResults'); c.innerHTML='';
+  drinks.forEach(d => { const card=ccard(d); card.onclick=()=>openModal(d,getDrinkIngs(d)); c.appendChild(card); });
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function openModal(d, ings){
+  document.getElementById('mImg').src = d.strDrinkThumb;
+  document.getElementById('mName').textContent = d.strDrink;
+  document.getElementById('mMeta').textContent = [d.strCategory, d.strAlcoholic, d.strGlass].filter(Boolean).join(' · ');
+  const ul = document.getElementById('mIngs'); ul.innerHTML='';
+  ings.forEach(({name, measure}) => {
+    const li = document.createElement('li');
+    if(cabinet.size){
+      const has = cabinetHas(name) || ASSUMED.has(name.toLowerCase());
+      li.className = has ? 'have' : 'missing';
+      li.innerHTML = `<span>${has?'✓':'✗'} ${name}</span><span class="ing-measure">${measure||'—'}</span>`;
+    } else {
+      li.innerHTML = `<span>${name}</span><span class="ing-measure">${measure||'—'}</span>`;
+    }
+    ul.appendChild(li);
+  });
+  document.getElementById('mInstr').textContent = d.strInstructions || 'No instructions available.';
+  document.getElementById('moverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(){ document.getElementById('moverlay').classList.remove('open'); document.body.style.overflow=''; }
+function maybeClose(e){ if(e.target===document.getElementById('moverlay')) closeModal(); }
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+async function apiFetch(url){
+  let r;
+  try { r = await fetch(url); } catch(e){ throw new Error('Network error'); }
+  if(!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+function showCStatus(m){ const s=document.getElementById('cStatus'); s.textContent=m; s.style.display='block'; }
+function hideCStatus(){ document.getElementById('cStatus').style.display='none'; }
+function showCErr(m){ const e=document.getElementById('cErr'); e.textContent=m; e.style.display='block'; }
+function clearCErr(){ document.getElementById('cErr').style.display='none'; }
+function showIStatus(m){ const s=document.getElementById('iStatus'); s.textContent=m; s.style.display='block'; }
+function hideIStatus(){ document.getElementById('iStatus').style.display='none'; }
+function showIErr(m){ const e=document.getElementById('iErr'); e.textContent=m; e.style.display='block'; }
+function clearIErr(){ document.getElementById('iErr').style.display='none'; }
+function switchTab(t){
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['cabinet','inspire'][i]===t));
+  document.querySelectorAll('.pane').forEach(el=>el.classList.remove('active'));
+  document.getElementById('pane-'+t).classList.add('active');
+}
+
+// Full bundled ingredient list — cabinet always renders from this, no network needed
+const BUNDLED_INGREDIENTS = [
+  // Vodkas
+  'Vodka','Absolut Vodka','Grey Goose Vodka','Smirnoff','Ketel One Vodka','Belvedere Vodka',
+  'Ciroc','Titos Vodka','Vanilla Vodka','Citrus Vodka','Raspberry Vodka','Peach Vodka',
+  'Cherry Vodka','Coconut Vodka','Mango Vodka','Strawberry Vodka','Watermelon Vodka',
+  'Pineapple Vodka','Cranberry Vodka','Black Vodka','Pepper Vodka','Lemon Vodka',
+  'Orange Vodka','Grape Vodka','Blueberry Vodka','Whipped Cream Vodka',
+  // Gins
+  'Gin','Dry Gin','Sloe Gin','Tanqueray','Hendricks Gin','Bombay Sapphire',
+  'Beefeater','Gordon\'s Gin','Aviation Gin','London Dry Gin','Old Tom Gin',
+  // Rums
+  'Rum','Dark Rum','White Rum','Light Rum','Spiced Rum','Gold Rum','Aged Rum',
+  'Coconut Rum','Malibu','Bacardi','Havana Club','Captain Morgan',
+  'Overproof Rum','151 Proof Rum','Demerara Rum','Jamaican Rum','Navy Rum',
+  'Mount Gay Rum','Plantation Rum',
+  // Tequilas
+  'Tequila','Blanco Tequila','Reposado Tequila','Anejo Tequila','Gold Tequila',
+  'Silver Tequila','Jose Cuervo','Patron','Don Julio','Hornitos Tequila',
+  // Mezcal
+  'Mezcal',
+  // Whiskeys
+  'Whiskey','Bourbon','Scotch','Rye Whiskey','Irish Whiskey','Blended Whiskey',
+  'Tennessee Whiskey','Canadian Whiskey','Japanese Whisky','Whisky',
+  'Jack Daniels','Jameson','Makers Mark','Buffalo Trace','Bulleit Bourbon',
+  'Woodford Reserve','Crown Royal','Chivas Regal','Glenfiddich','Macallan',
+  'Laphroaig','Monkey Shoulder','Johnnie Walker','Wild Turkey','Knob Creek',
+  // Brandies
+  'Brandy','Cognac','Armagnac','Peach Brandy','Apricot Brandy','Cherry Brandy',
+  'Apple Brandy','Pisco','Calvados','Grappa','VS Cognac','VSOP Cognac',
+  // Liqueurs
+  'Absinthe','Sambuca','Triple Sec','Blue Curacao','Cointreau','Grand Marnier',
+  'Amaretto','Disaronno','Kahlua','Coffee Liqueur','Baileys','Irish Cream',
+  'Campari','Aperol','Vermouth','Dry Vermouth','Sweet Vermouth','Bianco Vermouth',
+  'Champagne','Prosecco','Sparkling Wine','Cava',
+  'Wine','Red Wine','White Wine','Rose Wine','Port','Sherry','Madeira','Marsala',
+  'Beer','Lager','Ale','Stout','Wheat Beer',
+  'Sake','Mead','Soju',
+  'Schnapps','Peach Schnapps','Butterscotch Schnapps','Apple Schnapps',
+  'Peppermint Schnapps','Cinnamon Schnapps','Watermelon Schnapps',
+  'Midori','Melon Liqueur','Frangelico','Drambuie','Chambord','Galliano',
+  'Chartreuse','Green Chartreuse','Yellow Chartreuse',
+  'Benedictine','St. Germain','Elderflower Liqueur','Lychee Liqueur',
+  'Passion Fruit Liqueur','Raspberry Liqueur','Blackberry Liqueur',
+  'Strawberry Liqueur','Banana Liqueur','Watermelon Liqueur','Coconut Liqueur',
+  'Creme de Menthe','Creme de Cacao','Creme de Cassis','Creme de Mure',
+  'Maraschino Liqueur','Luxardo','Limoncello','Tuaca','Fireball Cinnamon Whisky',
+  'Jagermeister','Rumple Minze','Southern Comfort','Pimms',
+  'Amaro','Fernet Branca','Cynar','Montenegro','Averna',
+  'Ouzo','Pernod','Pastis','Anise','Arak',
+  'Baileys Irish Cream','Amaretto Di Saronno',
+  // Juices & Ciders
+  'Orange Juice','Cranberry Juice','Pineapple Juice','Grapefruit Juice',
+  'Lime Juice','Lemon Juice','Apple Juice','Tomato Juice','Pomegranate Juice',
+  'Mango Juice','Passion Fruit Juice','Watermelon Juice','Peach Juice',
+  'Coconut Juice','Guava Juice','Papaya Juice','Apricot Juice',
+  'Cherry Juice','Grape Juice','Blueberry Juice','Raspberry Juice',
+  'Carrot Juice','Beet Juice','Cucumber Juice','Celery Juice',
+  'Apple Cider','Hard Cider','Pear Cider',
+  // Mixers & Sodas
+  'Soda Water','Club Soda','Tonic Water','Ginger Beer','Ginger Ale',
+  'Cola','Diet Cola','Lemon-Lime Soda','Lemonade','Sparkling Water',
+  'Bitter Lemon','Coconut Water','Cream Soda','Root Beer',
+  'Orange Soda','Grape Soda','Grapefruit Soda',
+  // Dairy & Cream
+  'Milk','Whole Milk','Cream','Heavy Cream','Light Cream','Half and Half',
+  'Whipping Cream','Condensed Milk','Evaporated Milk',
+  'Coconut Milk','Coconut Cream','Almond Milk','Oat Milk',
+  'Buttermilk','Yogurt','Sour Cream','Kefir',
+  'Vanilla Ice Cream','Ice Cream',
+  // Coffee & Tea
+  'Coffee','Espresso','Cold Brew Coffee','Instant Coffee',
+  'Hot Chocolate','Chocolate Milk',
+  'Tea','Green Tea','Black Tea','Iced Tea','Chai Tea','Matcha',
+  // Syrups & Sweeteners
+  'Simple Syrup','Sugar Syrup','Grenadine','Agave Syrup','Honey','Honey Syrup',
+  'Maple Syrup','Orgeat','Falernum','Raspberry Syrup','Strawberry Syrup',
+  'Passion Fruit Syrup','Mango Syrup','Peach Syrup','Lavender Syrup',
+  'Rose Syrup','Vanilla Syrup','Caramel Syrup','Hazelnut Syrup',
+  'Chocolate Syrup','Brown Sugar Syrup','Cane Syrup','Demerara Syrup',
+  'Almond Syrup','Elderflower Cordial','Lime Cordial','Lemon Cordial',
+  'Coconut Syrup','Peppermint Syrup','Ginger Syrup','Cinnamon Syrup',
+  'Tamarind Syrup','Hibiscus Syrup','Blueberry Syrup','Blackberry Syrup',
+  // Bitters
+  'Angostura Bitters','Orange Bitters','Peychauds Bitters','Aromatic Bitters',
+  'Mole Bitters','Cardamom Bitters','Grapefruit Bitters','Celery Bitters',
+  'Coffee Bitters','Walnut Bitters','Cherry Bitters','Rhubarb Bitters',
+  // Eggs
+  'Egg','Egg White','Egg Yolk',
+  // Fruits & Garnishes
+  'Orange','Lime','Lemon','Grapefruit','Pineapple','Mango','Passion Fruit',
+  'Peach','Apple','Cherry','Strawberry','Raspberry','Blueberry','Blackberry',
+  'Watermelon','Cucumber','Cantaloupe','Honeydew','Banana','Coconut',
+  'Kiwi','Papaya','Guava','Pomegranate','Lychee','Cranberry','Grape',
+  'Mint','Basil','Rosemary','Thyme','Lavender',
+  'Celery','Olive','Jalapeño','Serrano Pepper',
+  // Condiments & Spices
+  'Tabasco','Worcestershire Sauce','Horseradish','Hot Sauce',
+  'Soy Sauce','Fish Sauce',
+  'Nutmeg','Cinnamon','Cloves','Cardamom','Star Anise','Allspice',
+  'Cayenne Pepper','Paprika','Turmeric','Ginger','Vanilla Extract',
+  'Black Pepper','White Pepper','Chilli Powder',
+];
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+buildInspireChips();
+loadIngredients();
+</script>
+</body>
+</html>
